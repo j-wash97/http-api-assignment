@@ -4,9 +4,58 @@
   <title>Our simple HTTP server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
-  <script type="text/babel">
+  <script>
+    // Dumb jQuery
+    const $ = query => { return document.querySelector(query); };
 
+    const init = () => {
+      $('#send').onclick = () => {
+        // Get request parameters
+        const url = $('#page').value;
+        const type = $('#type').value;
+
+        // Set parameters in HTTP request
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.setRequestHeader('Accept', type);
+
+        // Display response content on page
+        xhr.onload = () =>{
+          // Get and clear the content section
+          const content = $('#content');
+          content.innerHTML = '';
+
+          // Create display elements
+          const header = document.createElement('h1');
+          const message = document.createElement('p');
+
+          // Get the response's content type
+          const type = xhr.getResponseHeader('Content-Type');
+
+          if (type === 'application/json') {
+            const response = JSON.parse(xhr.response);
+
+            header.textContent = $('#page').options[$('#page').selectedIndex].textContent;
+            message.textContent = response.message;
+          }
+
+          if (type === 'text/xml') {
+            // Dumb xQuery
+            const $X = query => { return xhr.responseXML.querySelector(query); };
+
+            header.textContent = $('#page').options[$('#page').selectedIndex].textContent;
+            message.textContent = $X('message').textContent;
+          }
+
+          content.appendChild(header);
+          content.appendChild(message);
+        };
+
+        xhr.send();
+      };
+    };
+
+    window.onload = init;
   </script>
 </head>
 <body>
